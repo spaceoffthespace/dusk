@@ -1,0 +1,34 @@
+.analytics-container {
+    padding: 10px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    /* Space between analytics container and the next element */
+}
+
+.analytics-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    /* Spacing between analytics elements, adjust as needed */
+}
+
+/* Existing styles */
+.transactions-container {
+    margin: 0 auto;
+}
+
+.MuiDataGrid-root {
+    width: 100% !important;
+}
+
+.dataGridImg {
+    max-width: 100%;
+    height: auto;
+}
+
+.ban-user-divs-home {
+    width: 20%;
+}
