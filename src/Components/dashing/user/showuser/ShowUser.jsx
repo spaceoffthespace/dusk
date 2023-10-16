@@ -40,6 +40,8 @@ function ShowUser() {
   const [registerCountry, setRegisterCountry] = useState(null);
   const [lastLoginCountry, setLastLoginCountry] = useState(null);
   const [newAccountType, setNewAccountType] = useState('');
+  const [newRole, setNewRole] = useState(''); // Initialize with the current user's role
+
 
 
 
@@ -63,6 +65,13 @@ function ShowUser() {
         console.error('Error fetching user ID:', error);
     }
 };
+
+useEffect(() => {
+  if (userData) {
+    setNewAccountType(userData.account_type);
+    setNewRole(userData.role);
+  }
+}, [userData]);  //
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -246,9 +255,34 @@ const handleChangeAccountType = async () => {
     alert('Failed to change account type');
   }
 };
+const handleUpdateUserRole = async () => {
+  if (newRole !== userData.role) { // Only make a request if the role has changed
+    try {
+      const response = await axios.post(
+        `${apiUrl}/make-user-housekeeping/${userData.id}/`,
+        { new_role: newRole },
+        {
+          headers: {
+            Authorization: `Bearer ${authTokens.access}`,
+          },
+        }
+      );
 
-
-
+      if (response.status === 200) {
+        alert('User role updated successfully');
+        // Optionally update the user data in the state to reflect the changed role
+      } else {
+        console.error('Failed to update user role:', response);
+        alert('Failed to update user role');
+      }
+    } catch (error) {
+      console.error('Error updating user role:', error);
+      alert('Failed to update user role');
+    }
+  } else {
+    alert('Please select a different role to update');
+  }
+};
   
 
   // Define columns for the DataGrids
@@ -534,26 +568,44 @@ const handleChangeAccountType = async () => {
                     </Button>
                 </Typography>
                 <div style={{ marginBottom: '16px' }}>
-        <Typography color="primary" style={{ marginBottom: '8px' }} onClick={handleChangeAccountType}>
-          Level: {userData.account_type}
-        </Typography>
-      </div>
-      <div>
-        <h3>Change Account Type</h3>
-        <Select
-          value={newAccountType}
-          onChange={(e) => setNewAccountType(e.target.value)}
-        >
-          <MenuItem value="bronze">Bronze</MenuItem>
-          <MenuItem value="silver">Silver</MenuItem>
-          <MenuItem value="gold">Gold</MenuItem>
-          <MenuItem value="platinum">Platinum</MenuItem>
-          <MenuItem value="diamond">Diamond</MenuItem>
-        </Select>
-        <Button variant="contained" color="primary" onClick={handleChangeAccountType}>
-          Change Account Type
-        </Button>
-      </div>
+              <Typography color="primary" style={{ marginBottom: '8px' }} onClick={handleChangeAccountType}>
+                Level: {userData.account_type}
+              </Typography>
+            </div>
+            <div>
+              <h3>Change Account Type</h3>
+              <Select
+                value={newAccountType}
+                onChange={(e) => setNewAccountType(e.target.value)}
+              >
+                <MenuItem value="bronze">Bronze</MenuItem>
+                <MenuItem value="silver">Silver</MenuItem>
+                <MenuItem value="gold">Gold</MenuItem>
+                <MenuItem value="platinum">Platinum</MenuItem>
+                <MenuItem value="diamond">Diamond</MenuItem>
+              </Select>
+              <Button variant="contained" color="primary" onClick={handleChangeAccountType}>
+                Change Account Type
+              </Button>
+            </div>
+            <div>
+  <h3>Change Role</h3>
+  <Select
+    value={newRole}
+    onChange={(e) => setNewRole(e.target.value)}
+  >
+    {userData.role !== 'user' && <MenuItem value="user">User</MenuItem>}
+    {userData.role !== 'housekeeping' && <MenuItem value="housekeeping">Housekeeping</MenuItem>}
+  </Select>
+  <Button 
+    variant="contained" 
+    color="primary" 
+    onClick={handleUpdateUserRole}
+    disabled={newRole === userData.role}  // Disable button if the selected role is the same as the current role
+  >
+    Change Role
+  </Button>
+</div>
 
                 <Typography color="primary" style={{ marginBottom: '8px' }}>
                     Wallet: {userData.deliveryAddress}

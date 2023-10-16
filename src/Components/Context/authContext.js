@@ -15,22 +15,25 @@ const AuthProvider = ({ children }) => {
 
     const loginUser = async (payload) => {
         try {
-            let response = await fetch(`${apiUrl}/token/`, {
+            let response = await fetch(`${apiUrl}/admin-token/`, { // Directly using the admin-token endpoint
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(payload),
             });
-            let data = await response.json();
 
             if (response.status === 200) {
+                let data = await response.json();
                 setAuthTokens(data);
                 setUser(jwt_decode(data.access));
                 localStorage.setItem('authTokens', JSON.stringify(data));
                 navigate('/dashboard');
+            } else if (response.status === 403) {
+                alert("You do not have permission to access the dashboard");
             } else {
-                alert("error, incorrect pass?");
+                let data = await response.json();
+                alert(data.detail ? data.detail : "Error, incorrect password?");
             }
         } catch (error) {
             console.error("Error:", error);
