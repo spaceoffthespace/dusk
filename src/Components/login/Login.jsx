@@ -44,7 +44,6 @@ const LoginPage = () => {
         password,
         captcha_key: captchaKey,
         captcha_response: captchaResponse,
-        login_ip: "127.0.0.1", // Replace with actual login IP
       };
       
   
