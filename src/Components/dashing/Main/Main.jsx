@@ -110,33 +110,33 @@ const MainPage = () => {
   
     fetchNotificationStatus();
   }, []);
-
-const handleToggleNotifications = async () => {
-  try {
-    const response = await fetch(`${apiUrl}/toggle_telegram_notification/`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${authTokens.access}`,
-      },
-    });
-
-    if (response.status === 401) {
-      // Handle unauthorized access here (e.g., redirect to login)
-    } else if (response.ok) {
-      const data = await response.json();
-      if (data.success) {
-        setNotificationsEnabled(data.current_status);
-        // You can also show a toast message or alert to inform the user about the change
+  
+  const handleToggleNotifications = async () => {
+    try {
+      const response = await fetch(`${apiUrl}/toggle_telegram_notification/`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${authTokens.access}`,
+        },
+      });
+  
+      if (response.status === 401) {
+        // Handle unauthorized access here (e.g., redirect to login)
+      } else if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setNotificationsEnabled(data.current_status);
+          // You can also show a toast message or alert to inform the user about the change
+        } else {
+          console.error('Error toggling notifications:', data.error);
+        }
       } else {
-        console.error('Error toggling notifications:', data.error);
+        console.error('Request failed:', response.statusText);
       }
-    } else {
-      console.error('Request failed:', response.statusText);
+    } catch (error) {
+      console.error('An error occurred:', error);
     }
-  } catch (error) {
-    console.error('An error occurred:', error);
-  }
-};
+  };
 
   
 
@@ -192,6 +192,15 @@ const handleToggleNotifications = async () => {
         {isHR && (
           <div>
 
+         <div className='notification-toggle'>
+            <span>Notifications</span>
+            <Switch
+          checked={isNotificationsEnabled === true}
+          onChange={handleToggleNotifications}
+          color="primary"
+          disabled={isNotificationsEnabled === null}
+      />
+      <div>/</div>
         <div className='admin-action-buttons'>
           <Button variant="contained" color="primary" onClick={handleClearCaptchas}>
             Clear Captchas
@@ -203,14 +212,6 @@ const handleToggleNotifications = async () => {
             Delete Transaction images
           </Button>
          </div>
-         <div className='notification-toggle'>
-            <span>Notifications</span>
-            <Switch
-          checked={isNotificationsEnabled === true}
-          onChange={handleToggleNotifications}
-          color="primary"
-          disabled={isNotificationsEnabled === null}
-      />
         </div>
          </div>
          
