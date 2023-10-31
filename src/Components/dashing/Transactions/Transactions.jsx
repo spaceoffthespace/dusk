@@ -341,11 +341,11 @@ const approvedAmounts = getMonthlyApprovedAmounts(transactions);
     align: 'center', // Center align the cell content
     renderCell: (params) => (
       <Box sx={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-        <Link to={`/show-user/${params.row.id}`}>
-            <IconButton color="primary" size="small">
-              <VisibilityIcon />
-            </IconButton>
-          </Link>
+        <Link to={`/show-user/${params.row.user}`}>
+          <IconButton color="primary" size="small">
+            <VisibilityIcon />
+          </IconButton>
+        </Link>
         <IconButton color="inherit" size="small" onClick={() => handleEdit(params.row.id)}>
           <EditIcon style={{ color: 'green' }}/>
         </IconButton>
