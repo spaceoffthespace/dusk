@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { Box, Typography, Button, Alert, Snackbar } from '@mui/material';
 import Users from '../user/User';
 import Transactions from '../Transactions/Transactions';
@@ -6,16 +6,20 @@ import Navbar from '../Sidebar/Navbar';
 import WithdrawalsDashboard from '../Withdraw/Withdraw';
 import axios from 'axios';
 import { AuthContext } from '../../Context/authContext';
+import Switch from '@mui/material/Switch';
 
 const MainPage = () => {
   const { authTokens } = useContext(AuthContext);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+  const { user } = useContext(AuthContext);
+  const [isNotificationsEnabled, setNotificationsEnabled] = useState(null); // default is true, you can fetch the actual state from the API when the component mounts
 
 
   const apiUrl = process.env.REACT_APP_API_URL;
 
+  const isHR = user && user.role === 'hr';
 
   const handleClearCaptchas = async () => {
     try {
@@ -77,6 +81,63 @@ const MainPage = () => {
     }
   };
 
+  useEffect(() => {
+    const fetchNotificationStatus = async () => {
+      try {
+        const response = await fetch(`${apiUrl}/toggle_telegram_notification/`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${authTokens.access}`,
+          },
+        });
+  
+        if (response.status === 401) {
+          // Handle unauthorized access here (e.g., redirect to login)
+        } else if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            setNotificationsEnabled(data.current_status);
+          } else {
+            console.error('Error fetching notifications status:', data.error);
+          }
+        } else {
+          console.error('Request failed:', response.statusText);
+        }
+      } catch (error) {
+        console.error('An error occurred while fetching status:', error);
+      }
+    };
+  
+    fetchNotificationStatus();
+  }, []);
+
+const handleToggleNotifications = async () => {
+  try {
+    const response = await fetch(`${apiUrl}/toggle_telegram_notification/`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${authTokens.access}`,
+      },
+    });
+
+    if (response.status === 401) {
+      // Handle unauthorized access here (e.g., redirect to login)
+    } else if (response.ok) {
+      const data = await response.json();
+      if (data.success) {
+        setNotificationsEnabled(data.current_status);
+        // You can also show a toast message or alert to inform the user about the change
+      } else {
+        console.error('Error toggling notifications:', data.error);
+      }
+    } else {
+      console.error('Request failed:', response.statusText);
+    }
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+};
+
   
 
   const handleDeleteImages = async () => {
@@ -125,6 +186,12 @@ const MainPage = () => {
         <Typography variant="h3" color="primary" gutterBottom>
           MAIN
         </Typography>
+        <div>
+
+         
+        {isHR && (
+          <div>
+
         <div className='admin-action-buttons'>
           <Button variant="contained" color="primary" onClick={handleClearCaptchas}>
             Clear Captchas
@@ -135,7 +202,21 @@ const MainPage = () => {
           <Button variant="contained" color="error" onClick={handleDeleteImages}>
             Delete Transaction images
           </Button>
+         </div>
+         <div className='notification-toggle'>
+            <span>Notifications</span>
+            <Switch
+          checked={isNotificationsEnabled === true}
+          onChange={handleToggleNotifications}
+          color="primary"
+          disabled={isNotificationsEnabled === null}
+      />
         </div>
+         </div>
+         
+      )}
+      </div>
+      
         <div className="main-user-container" style={{ margin: '10px', width: '100%', paddingTop: '20px', paddingBottom: '20px' }}>
           <Users />
         </div>

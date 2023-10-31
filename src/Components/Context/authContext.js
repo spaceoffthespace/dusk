@@ -15,20 +15,34 @@ const AuthProvider = ({ children }) => {
 
     const loginUser = async (payload) => {
         try {
-            let response = await fetch(`${apiUrl}/admin-token/`, { // Directly using the admin-token endpoint
+            let response = await fetch(`${apiUrl}/admin-token/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(payload),
             });
-
+    
             if (response.status === 200) {
                 let data = await response.json();
                 setAuthTokens(data);
-                setUser(jwt_decode(data.access));
                 localStorage.setItem('authTokens', JSON.stringify(data));
-                navigate('/dashboard');
+    
+                // Fetch the user's role from the new API endpoint
+                const roleResponse = await fetch(`${apiUrl}/get-user-role/`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${data.access}`, // Include the JWT
+                    },
+                });
+    
+                if (roleResponse.status === 200) {
+                    const roleData = await roleResponse.json();
+                    setUser({ ...jwt_decode(data.access), role: roleData.role });
+                    navigate('/dashboard');
+                } else {
+                    alert("Failed to fetch user role");
+                }
             } else if (response.status === 403) {
                 alert("You do not have permission to access the dashboard");
             } else {
@@ -46,13 +60,6 @@ const AuthProvider = ({ children }) => {
         navigate('/dashboard');
     }
 
-    const useAuth = () => {
-        const context = useContext(AuthContext);
-        if (context === undefined) {
-            throw new Error('useAuth must be used within an AuthProvider');
-        }
-        return context;
-    };
 
     let contextData = {
         user: user,
