@@ -8,9 +8,14 @@ const AuthProvider = ({ children }) => {
 
     const apiUrl = process.env.REACT_APP_API_URL;
 
-    let [authTokens, setAuthTokens] = useState(() => localStorage.getItem('authTokens') ? JSON.parse(localStorage.getItem('authTokens')) : null)
-    const [user, setUser] = useState(() => localStorage.getItem('authTokens') ? jwt_decode(localStorage.getItem('authTokens')) : null)
+    let [authTokens, setAuthTokens] = useState(() => localStorage.getItem('authTokens') ? JSON.parse(localStorage.getItem('authTokens')) : null);
 
+// This is updated - you're specifically decoding the access token to get the user info
+    const [user, setUser] = useState(() => {
+    const tokens = localStorage.getItem('authTokens') ? JSON.parse(localStorage.getItem('authTokens')) : null;
+    const token = tokens ? tokens.access : null;
+    return token ? jwt_decode(token) : null;
+});
     const navigate = useNavigate();
 
     const loginUser = async (payload) => {

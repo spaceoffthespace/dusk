@@ -161,6 +161,7 @@ function InvitedUsersComponent() {
                 <Line data={joinData} />
             </div>
             <h2>My Invited Users</h2>
+            <p>invited {invitedUsers.length} users.</p> {/* This line adds the count of invited users */}
             </Container>
       <Container maxWidth="xl">
       <div
