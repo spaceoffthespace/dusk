@@ -7,7 +7,8 @@ import WithdrawalsDashboard from '../Withdraw/Withdraw';
 import axios from 'axios';
 import { AuthContext } from '../../Context/authContext';
 import Switch from '@mui/material/Switch';
-
+import MyClientsComponent from '../clients/Clients';
+import UserTransactions from '../clients/ClientTrans';
 const MainPage = () => {
   const { authTokens } = useContext(AuthContext);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -217,6 +218,8 @@ const MainPage = () => {
          
       )}
       </div>
+      {isHR && (
+        <>
       
         <div className="main-user-container" style={{ margin: '10px', width: '100%', paddingTop: '20px', paddingBottom: '20px' }}>
           <Users />
@@ -226,6 +229,19 @@ const MainPage = () => {
         </div>
         <div className="main-withdraw-container" style={{ width: '100%', paddingTop: '20px', paddingBottom: '20px'}}>
           <WithdrawalsDashboard />
+        </div>
+        </>
+         )}
+        <Typography variant="h3" color="primary" gutterBottom>
+          My clients
+        </Typography>
+        <div className='main-client-container'  style={{ margin: '10px', width: '100%', paddingTop: '20px', paddingBottom: '20px' }}>
+
+          <MyClientsComponent />
+        </div>
+        <div className='main-client-container'  style={{ margin: '10px', width: '100%', paddingTop: '20px', paddingBottom: '20px' }}>
+
+          <UserTransactions />
         </div>
       </Box>
       <Snackbar open={snackbarOpen} autoHideDuration={4000} onClose={handleSnackbarClose}>
