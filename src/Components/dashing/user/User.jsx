@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { DataGrid, GridToolbarColumnsButton, GridToolbarFilterButton, GridToolbarExport } from '@mui/x-data-grid';
-import { Container, IconButton } from '@mui/material';
+import { Container, IconButton, Select, MenuItem, InputLabel, FormControl } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -22,6 +22,9 @@ function Users() {
   const [data, setData] = useState([]);
   const { user, isLoading, authTokens } = useContext(AuthContext);
   const [pieChartData, setPieChartData] = useState({});
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [uniqueYears, setUniqueYears] = useState([]);
+  
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -38,7 +41,9 @@ function Users() {
         // Calculate the number of users and those recommended by others
         const totalUsers = res.data.length;
         const recommendedUsers = res.data.filter(user => user.recommended_by).length;
-  
+
+        const years = new Set(sortedData.map(user => new Date(user.date_joined).getFullYear()));
+        setUniqueYears([...years]);
         // Set the data for the pie chart
         setPieChartData({
           labels: ['Total Users', 'Recommended By Others'],
@@ -58,6 +63,16 @@ function Users() {
     fetchUsers();
   }, []);
   
+const getUsersPerMonthForYear = (year) => {
+  const months = Array(12).fill(0);
+  data.forEach(user => {
+    if (new Date(user.date_joined).getFullYear() === year) {
+      const month = new Date(user.date_joined).getMonth();
+      months[month]++;
+    }
+  });
+  return months;
+};
 
   const handleInspect = (userId) => {
     // Handle inspect action here
@@ -88,17 +103,15 @@ function Users() {
   const joinData = {
     labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
     datasets: [
-        {
-            label: 'Users Joined',
-            data: usersPerMonth,
-            fill: false,
-            backgroundColor: 'blue',
-            borderColor: 'blue',
-        },
+      {
+        label: 'Users Joined',
+        data: getUsersPerMonthForYear(selectedYear),
+        fill: false,
+        backgroundColor: 'blue',
+        borderColor: 'blue',
+      },
     ],
-};
-
-
+  };
   
 const columns = [
   { field: 'id', headerName: 'ID', flex: 0.5 }, 
@@ -186,9 +199,26 @@ const columns = [
        
           
       </div>
+
+      <Grid item xs={12}>
+        <FormControl variant="outlined" style={{ width: '150px' }}>
+            <InputLabel>Year</InputLabel>
+            <Select
+                label="Select Year"
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(e.target.value)}
+                variant="outlined"
+                fullWidth
+            >
+                {uniqueYears.map(year => (
+                    <MenuItem key={year} value={year}>{year}</MenuItem>
+                ))}
+            </Select>
+        </FormControl>
       <div style={{ height: '250px' }}> 
         <Line data={joinData} />
         </div>
+    </Grid>
    
     </Container>
           <div

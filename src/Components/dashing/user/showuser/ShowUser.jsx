@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import { Container, Typography, Grid, Paper, List, ListItem, ListItemText, IconButton, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+import { Container, Typography, Grid, Paper, List, ListItem, ListItemText, IconButton, Select, MenuItem, FormControl, InputLabel, Switch, FormControlLabel } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import { Button, Modal, Box } from '@mui/material';
 import './showUser.css'
@@ -130,6 +130,7 @@ useEffect(() => {
       }
     }
   };
+
   const handleDeleteTask = async (taskId) => {
     try {
       // Send a DELETE request to the API to delete the task
@@ -235,7 +236,27 @@ const handleReleasebalance = async () => {
     alert('Failed to re;ease user balance');
   }
 };
+const toggleUnaffordableTasks = async (userId, toggleValue) => {
+  try {
+      const response = await axios.put(`${apiUrl}/off-t/`, {
+          user_id: userId,
+          toggle_value: toggleValue
+      }, {
+          headers: {
+              'Authorization': `Bearer ${authTokens.access}`,
+          }
+      });
 
+      console.log(response.data.detail);
+      // Assuming setUserData is the state setter function for userData
+      setUserData(prevData => ({
+          ...prevData,
+          allow_unaffordable_tasks: toggleValue
+      }));
+  } catch (error) {
+      console.error('Error toggling unaffordable tasks:', error?.response?.data?.detail || error.message);
+  }
+};
 
 const handleChangeAccountType = async () => {
   try {
@@ -540,7 +561,19 @@ const handleUpdateUserRole = async () => {
             <Pie data={transactionStatusData} options={chartOptions} />
           </div>
         </Grid>
-
+        <div>
+        <FormControlLabel
+    control={
+        <Switch
+            key={`allow-unaffordable-tasks-${userData.id}-${userData.allow_unaffordable_tasks}`}
+            checked={userData.allow_unaffordable_tasks}
+            onChange={(e) => toggleUnaffordableTasks(userData.id, e.target.checked)}
+            color="primary"
+        />
+    }
+    label="Allow Unaffordable Tasks"
+/>
+    </div>
         <Grid container spacing={3} style={{ padding: '7px' }}>
             <Grid item xs={12} md={4}>
                 <Typography color="primary" style={{ marginBottom: '8px' }}>
@@ -567,6 +600,7 @@ const handleUpdateUserRole = async () => {
                      Release
                     </Button>
                 </Typography>
+
                 <div style={{ marginBottom: '16px' }}>
               <Typography color="primary" style={{ marginBottom: '8px' }} onClick={handleChangeAccountType}>
                 Level: {userData.account_type}
