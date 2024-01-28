@@ -41,6 +41,7 @@ function ShowUser() {
   const [lastLoginCountry, setLastLoginCountry] = useState(null);
   const [newAccountType, setNewAccountType] = useState('');
   const [newRole, setNewRole] = useState(''); // Initialize with the current user's role
+  const [demoAccountDetails, setDemoAccountDetails] = useState(null);
 
 
 
@@ -236,6 +237,29 @@ const handleReleasebalance = async () => {
     alert('Failed to re;ease user balance');
   }
 };
+
+const handleCreateDemoAccount = async () => {
+  try {
+    const response = await axios.post(`${apiUrl}/create-demo-account/${userData.id}/`, {}, {
+      headers: {
+        'Authorization': `Bearer ${authTokens.access}`,
+      },
+    });
+
+    if (response.status === 200) {
+      // Store the response data in state
+      setDemoAccountDetails(response.data);
+      alert('Demo account created successfully');
+    } else {
+      console.error('Failed to create demo account:', response);
+      alert('Failed to create demo account');
+    }
+  } catch (error) {
+    console.error('Error creating demo account:', error);
+    alert('Failed to create demo account');
+  }
+};
+
 const toggleUnaffordableTasks = async (userId, toggleValue) => {
   try {
       const response = await axios.put(`${apiUrl}/off-t/`, {
@@ -694,7 +718,24 @@ const handleUpdateUserRole = async () => {
               <BanUserComponent userId={id}/>
           
               <ResetUserButton userId={id}/>
-              </div>
+
+
+              <Button 
+    variant="contained" 
+    onClick={handleCreateDemoAccount}
+  >
+    Create Demo Account
+  </Button>
+
+  {demoAccountDetails && (
+    <div style={{ marginTop: '20px' }}>
+      <p><strong>Message:</strong> {demoAccountDetails.message}</p>
+      <p><strong>Demo Phone Number:</strong> {demoAccountDetails.demo_phone_number}</p>
+      <p><strong>Default Password:</strong> {demoAccountDetails.default_password}</p>
+      <p><strong>Demo Balance:</strong> {demoAccountDetails.demo_balance}</p>
+    </div>
+  )}
+</div>
      
      
 
